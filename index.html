@@ -1,25 +1,46 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Location Lock Form</title>
+    <title>Auto Submit Location</title>
 </head>
 <body>
-    <h2>Auto-Filled Location Form</h2>
-    <form action="https://your-database-endpoint" method="POST">
-        Latitude: <input type="text" id="latitude" name="latitude" readonly><br>
-        Longitude: <input type="text" id="longitude" name="longitude" readonly><br>
-        <button type="submit">Submit</button>
-    </form>
+    <h2>Capturing Your Location...</h2>
+    <p>Please wait while your location is submitted.</p>
 
     <script>
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(function(position) {
-                document.getElementById("latitude").value = position.coords.latitude;
-                document.getElementById("longitude").value = position.coords.longitude;
-            });
-        } else {
-            alert("Geolocation not supported!");
+        function submitLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function (position) {
+                    var latitude = position.coords.latitude;
+                    var longitude = position.coords.longitude;
+
+                    // Your Google Apps Script Web App URL
+                    var endpoint = "https://script.google.com/macros/s/AKfycbzEJwAFFQ27F6oy-nxf2bv7zaHU5rqtQzwybiW4qEvcRYDWD5Be62C4ZO_xUvuW6Qt-8w/exec";
+
+                    // Automatically send location data to the script
+                    fetch(endpoint, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                        body: "latitude=" + latitude + "&longitude=" + longitude
+                    })
+                    .then(response => response.text())
+                    .then(data => {
+                        alert("Location submitted successfully!");
+                        console.log(data);
+                    })
+                    .catch(error => {
+                        alert("Error submitting location: " + error.message);
+                    });
+                }, function (error) {
+                    alert("Error fetching location: " + error.message);
+                });
+            } else {
+                alert("Geolocation is not supported by this browser.");
+            }
         }
+
+        // Call the function to get and submit location
+        submitLocation();
     </script>
 </body>
 </html>
