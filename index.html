@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Location Lock Form</title>
+</head>
+<body>
+    <h2>Auto-Filled Location Form</h2>
+    <form action="https://your-database-endpoint" method="POST">
+        Latitude: <input type="text" id="latitude" name="latitude" readonly><br>
+        Longitude: <input type="text" id="longitude" name="longitude" readonly><br>
+        <button type="submit">Submit</button>
+    </form>
+
+    <script>
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function(position) {
+                document.getElementById("latitude").value = position.coords.latitude;
+                document.getElementById("longitude").value = position.coords.longitude;
+            });
+        } else {
+            alert("Geolocation not supported!");
+        }
+    </script>
+</body>
+</html>
